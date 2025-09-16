@@ -1,7 +1,5 @@
-﻿//Codigo para leer una imagen, decodificar sus valores RGB y guardarlos en un archivo de texto,
-//y luego reconstruir la imagen a partir de esos valores.
-//Corregido por: ChatGPT (basado en tu versión original)
-//Creado originalmente por: William Cruz Hernandez 
+﻿//Codigo para leer una imagen, decodificar sus valores RGB y guardarlos en un archivo de texto y luego reconstruir la imagen a partir de esos valores.
+//Creado por: William Cruz Hernandez 
 //GitHub: Amonwill
 //Fecha: 15/09/2025
 //Esime Culhuacan
