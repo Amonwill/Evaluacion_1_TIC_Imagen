@@ -1,0 +1,8 @@
+E:\William\Universidad\semestre 7\Teoria de la informacion y codificacion\Parcial1\DecodIMG\bin\Debug\DecodIMG.exe.config
+E:\William\Universidad\semestre 7\Teoria de la informacion y codificacion\Parcial1\DecodIMG\bin\Debug\DecodIMG.exe
+E:\William\Universidad\semestre 7\Teoria de la informacion y codificacion\Parcial1\DecodIMG\bin\Debug\DecodIMG.pdb
+E:\William\Universidad\semestre 7\Teoria de la informacion y codificacion\Parcial1\DecodIMG\obj\Debug\DecodIMG.csproj.AssemblyReference.cache
+E:\William\Universidad\semestre 7\Teoria de la informacion y codificacion\Parcial1\DecodIMG\obj\Debug\DecodIMG.csproj.CoreCompileInputs.cache
+E:\William\Universidad\semestre 7\Teoria de la informacion y codificacion\Parcial1\DecodIMG\obj\Debug\DecodIMG.exe
+E:\William\Universidad\semestre 7\Teoria de la informacion y codificacion\Parcial1\DecodIMG\obj\Debug\DecodIMG.pdb
+E:\William\Universidad\semestre 7\Teoria de la informacion y codificacion\Parcial1\DecodIMG\obj\Debug\DecodIMG.exe.config

@@ -1,18 +1,18 @@
-﻿//Codigo para leer una imagen, decodificar sus valores RGB y guardarlos en un archivo de texto.
-//Creado por: William Cruz Hernandez 
+﻿//Codigo para leer una imagen, decodificar sus valores RGB y guardarlos en un archivo de texto,
+//y luego reconstruir la imagen a partir de esos valores.
+//Corregido por: ChatGPT (basado en tu versión original)
+//Creado originalmente por: William Cruz Hernandez 
 //GitHub: Amonwill
-//Fecha: 14/09/2025
+//Fecha: 15/09/2025
 //Esime Culhuacan
 //Teoria de la informacion Y codificacion
 
 using System;
 using System.Collections.Generic;
+// Requiere agregar referencia a System.Drawing.Common desde NuGet cuando usas .NET Core o .NET 5+
 using System.Drawing;
-//Cuando utilizamos System.Drawing en .NET Core o .NET 5/6/7, necesitamos agregar el paquete NuGet System.Drawing.Common
-//En Visual Studio, puedes hacerlo a través del Administrador de Paquetes NuGet o usando la consola de NuGet con el siguiente comando:
-//Install-Package System.Drawing.Common
-//Cuando utilizas .NET framework 4.7.2 o superior, System.Drawing ya está incluido en el framework, por lo que no necesitas instalar nada adicionalmente.
 using System.IO;
+using System.Text;
 
 namespace ImagenDecodificadaenRGB
 {
@@ -20,103 +20,159 @@ namespace ImagenDecodificadaenRGB
     {
         static void Main(string[] args)
         {
-            int intento;
-
-            Console.WriteLine("Desea decodificar una imagen: \n 1. Si \n 2. No");
-            intento = Convert.ToInt32(Console.ReadLine());
-            // si el usuario no desea continuar, se cierra el programa
-            // hacemos uso de un ciclo do -while para validar la entrada del usuario
-            while (intento == 1)
+            try
             {
-                if (intento == 2)
+                // preguntar al usuario si desea decodificar una imagen
+                Console.WriteLine("Desea decodificar una imagen: \n 1. Sí \n 2. No");
+                // leer la respuesta del usuario
+                int intento = Convert.ToInt32(Console.ReadLine());
+
+                // si la respuesta es no, salir del programa
+                if (intento != 1)
                 {
                     Console.WriteLine("El programa se cerrará. Presione ENTER para salir...");
                     Console.ReadLine();
-                    return; // salir del programa
+                    return;
                 }
-                else if (intento == 1)
+
+                // solicitar al usuario la ruta de la imagen
+                Console.WriteLine("Ingrese la ruta de la imagen con extensión: ");
+                string rutaImagen = Console.ReadLine();
+
+                // verificar que la imagen existe
+                if (!File.Exists(rutaImagen))
                 {
-                    // solicitar al usuario la ruta de la imagen
-                    Console.WriteLine("Ingrese la dirección de la imagen con extensión: ");
-                    string rutaImagen = Console.ReadLine();
+                    // la imagen no existe, mostrar mensaje y salir
+                    Console.WriteLine("La imagen no existe en la ruta indicada.");
+                    return;
+                }
 
-                    // variable para almacenar la cadena de valores RGB en archivo de texto
-                    string resultado = "";
+                // variable para almacenar la cadena de valores RGB en archivo de texto
+                string resultado = "";
 
-                    // lee y decodifica la imagen para obtener los valores RGB
-                    try
+                // lee y decodifica la imagen para obtener los valores RGB
+                Bitmap imagen = new Bitmap(rutaImagen);
+
+                // construir cadena: primero ancho,alto, luego los R,G,B
+                var sb = new StringBuilder();
+                // agregar ancho y alto al inicio
+                sb.Append(imagen.Width).Append(',').Append(imagen.Height);
+
+                // recorrer cada píxel en cada columna
+                for (int y = 0; y < imagen.Height; y++)
+                {
+                    // recorrer cada píxel en la fila
+                    for (int x = 0; x < imagen.Width; x++)
                     {
-                        // cargar la imagen a partir de la ruta proporcionada por el usuario
-                        // bitmap es una clase en System.Drawing que representa una imagen en memoria
-                        Bitmap imagen = new Bitmap(rutaImagen);
-                        // lista para almacenar los valores RGB
-                        List<int> valoresRGB = new List<int>();
+                        // obtener el color del píxel
+                        Color pixelColor = imagen.GetPixel(x, y); // Color tiene propiedades R, G, B, el x, y es la posición del píxel
+                        sb.Append(',').Append(pixelColor.R)    // agregar valor R
+                          .Append(',').Append(pixelColor.G)   // agregar valor G
+                          .Append(',').Append(pixelColor.B); // agregar valor B
+                    }
+                }
 
-                        // recorrer cada píxel de la imagen y obtener sus valores RGB
-                        // este primer bucle recorre las filas (altura) de la imagen
-                        for (int y = 0; y < imagen.Height; y++)
+                // convertir StringBuilder a string
+                //
+                resultado = sb.ToString();
+
+                // mostrar cadena en consola
+                Console.WriteLine("\nCadena de valores RGB:");
+                Console.WriteLine(resultado.Substring(0, Math.Min(500, resultado.Length)) + "...");
+                Console.WriteLine("(Se muestra sólo un fragmento de la cadena a guardar)");
+
+                // guardamos en archivo .txt
+                Console.WriteLine("\nIngrese la ruta donde desea guardar el archivo de texto (incluya el nombre y la extensión .txt): ");
+                string rutaArchivo = Console.ReadLine();
+                File.WriteAllText(rutaArchivo, resultado, Encoding.UTF8);
+                Console.WriteLine($"Los valores RGB han sido guardados en {rutaArchivo}");
+
+                // lectura del archivo .txt para reconstrucción
+                Console.WriteLine("\nLeyendo informacion del archivo : " + rutaArchivo);
+
+                // verificar que el archivo existe
+                if (!File.Exists(rutaArchivo))
+                {
+                    // el archivo no existe, mostrar mensaje y salir
+                    Console.WriteLine("El archivo no existe en la ruta indicada.");
+                    return;
+                }
+
+                // lee todo el contenido del archivo
+                string contenidoArchivo = File.ReadAllText(rutaArchivo, Encoding.UTF8);
+
+                // Convertir la cadena a lista de enteros
+                string[] valoresString = contenidoArchivo.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                // convertir cada valor a int
+                List<int> valoresRGBLeidos = new List<int>();
+
+                // intentar convertir cada valor a int y agregar a la lista
+                foreach (string valor in valoresString)
+                {
+                    // intentar convertir a int
+                    if (int.TryParse(valor, out int intValue))
+                    {
+                        // agregar a la lista
+                        valoresRGBLeidos.Add(intValue);
+                    }
+                }
+
+                // verificar que hay al menos ancho y alto
+                if (valoresRGBLeidos.Count < 2)
+                {
+                    // no hay suficientes datos
+                    Console.WriteLine("El archivo no contiene información suficiente.");
+                    return;
+                }
+
+                // primer par de valores = ancho y alto
+                int width = valoresRGBLeidos[0];
+                int height = valoresRGBLeidos[1];
+
+                // crear nueva imagen
+                Bitmap nuevaImagen = new Bitmap(width, height);
+
+                // recorrer cada píxel y asignar color
+                int index = 2; // comenzamos después de ancho y alto
+                // recorrer cada píxel
+                for (int y = 0; y < height; y++)
+                {
+                    // recorrer cada columna
+                    for (int x = 0; x < width; x++)
+                    {
+                        // verificar que hay suficientes valores para R, G, B
+                        if (index + 2 < valoresRGBLeidos.Count)
                         {
-                            // este segundo bucle recorre las columnas (ancho) de la imagen
-                            for (int x = 0; x < imagen.Width; x++)
-                            {
-                                Color pixelColor = imagen.GetPixel(x, y);
-                                // agregar los valores RGB a la lista
-                                // agrega cadena de valores RGB en el orden R, G, B para cada píxel
-
-                                valoresRGB.Add(pixelColor.R); // Componente Roja
-                                valoresRGB.Add(pixelColor.G); // Componente Verde
-                                valoresRGB.Add(pixelColor.B); // Componente Azul
-                            }
+                            // leemos valores R, G, B
+                            int r = valoresRGBLeidos[index++];
+                            int g = valoresRGBLeidos[index++];
+                            int b = valoresRGBLeidos[index++];
+                            // crear color y asignar al píxel
+                            Color color = Color.FromArgb(r, g, b);
+                            nuevaImagen.SetPixel(x, y, color); // asignar color al píxel
                         }
-
-                        // convertimos la lista de valores RGB a una cadena separada por comas usando Join
-                        resultado = string.Join(",", valoresRGB);
-
-                        // mostramos la cadena de valores RGB en la consola
-                        Console.WriteLine("Cadena de valores RGB:");
-                        Console.WriteLine(resultado);
+                        else
+                        {
+                            // si faltan valores, rellenar con negro
+                            nuevaImagen.SetPixel(x, y, Color.Black);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        // cuando la imagen no se encuentra en la ruta dada por el usuario
-                        Console.WriteLine("Error al procesar la imagen (No existe o no fue escrita correctamente): " + ex.Message);
-                    }
-
-                    // limpiamos la consola después de mostrar la cadena RGB y que se oprima ENTER para continuar
-                    Console.WriteLine("\nPresione ENTER para continuar...");
-                    Console.ReadLine();
-                    Console.Clear();
-                    Console.WriteLine("Cadena RGB mostrada anteriormente se limpiará de la consola.\n");
-                    Console.WriteLine("Ahora procederemos a guardar la cadena de valores RGB en un archivo de texto.\n");
-
-                    // guardar en archivo
-                    try
-                    {
-                        // ruta definida
-                        // string rutaArchivo = "C:\\Users\\Wcruz\\OneDrive\\Desktop\\prueba1.txt"; 
-                        // ruta dada por el usuario
-                        Console.WriteLine("Ingrese la ruta donde desea guardar el archivo de texto (incluya el nombre y la extensión .txt): ");
-                        string rutaArchivo = Console.ReadLine();
-                        string resultadoArchivo = resultado; // Usar la variable resultado declarada anteriormente
-                        File.WriteAllText(rutaArchivo, resultado);
-                        Console.WriteLine($"Los valores RGB han sido guardados en {rutaArchivo}");
-
-                        Console.WriteLine("\nContenido del archivo guardado desea decodificar otra imagen: \n 1. Si \n 2. No");
-                        intento = Convert.ToInt32(Console.ReadLine());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("No se pudo guardar el archivo: " + ex.Message);
-                    }
-
-                    Console.WriteLine("\nPresione ENTER para salir...");
-                    Console.ReadLine();
                 }
-                else
-                {
-                    Console.WriteLine("Opción no válida. Intente de nuevo.");
-                }
+
+                // Guardar la nueva imagen en un archivo en ruta dada por el usuario
+                Console.WriteLine("\nIngrese la ruta donde desea guardar la imagen reconstruida (incluya el nombre y la extensión .png): ");
+                string rutaImagenReconstruida = Console.ReadLine();
+                nuevaImagen.Save(rutaImagenReconstruida, System.Drawing.Imaging.ImageFormat.Png);
+                Console.WriteLine($"La imagen ha sido reconstruida y guardada en {rutaImagenReconstruida}");
+
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+
+            Console.WriteLine("Presione ENTER para salir...");
+            Console.ReadLine();
         }
     }
 }
